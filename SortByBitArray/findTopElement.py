@@ -29,7 +29,7 @@
 import random
 
 class findTopElements(object):
-	__elementsArray=[]
+	_elementsArray=[]
 
 	__bitmap = []
 
@@ -41,10 +41,9 @@ class findTopElements(object):
 
 	#生成随机数组
 	def getShuffledArray(self):
-
 		#在范围内生成不重复的随机数
-		self.__elementsArray = random.sample(range(0,self.elementsNum * 10),self.elementsNum)
-		return self.__elementsArray
+		self._elementsArray = random.sample(range(0,self.elementsNum * 10),self.elementsNum)
+		return self._elementsArray
 
 	def _getBitmapPosition(self,num):
 		return num //32		#Python 里 //才是取整！
@@ -54,38 +53,84 @@ class findTopElements(object):
 
 	def _getNumByPositionAndIndex(self,position,index):
 		indexInElementArray = position * 32 + index
+		
+		return indexInElementArray
 
 	def _buildBitmap(self,elements):
 		#分配bitmap空间
-		__bitmap =[ 0 for x in range(len(elements) + 1)]
-		print(self.__bitmap)
-"""
+		self.__bitmap =[ 0 for x in range(len(elements) + 1)]
+		
 		for element in elements:
 			bitmapPosition = self._getBitmapPosition(element)
 			indexInBitmap = self._getIndexInBitmap(element)
 
-
-			#使用 | 标识为有元素
-			self.__bitmap[bitmapPosition] |= indexInBitmap
+			self.__bitmap[bitmapPosition] = self.set_bit(self.__bitmap[bitmapPosition],indexInBitmap)
+			
 		return self.__bitmap
-"""
+
+
+
+	#按位设置的算法
+	def set_bit(self,num,index,flag=True):
+		if index > 32 or index < 0:
+			raise ValueError("index error:index:%d"%index)
+
+		#确定Offset
+		bitIndex = index if index < 2  else 2<< (index -2)
+
+		#设置的核心方法
+		return (num | bitIndex) if flag else (num & ~bitIndex)
+
+	#获取指定的位上的值
+	def get_bit(self,num,index):
+		pass
+
+		
 
 	def getTopElements(self,topNum,bitmap= None):
 		if bitmap is None:
-			bitmap = self._buildBitmap(self.__elementsArray)
+			bitmap = self._buildBitmap(self._elementsArray)
+
+		result = []
 
 		print(bitmap)
 
-"""		result = []
-		for n in range(0,len(bitmap)):
-			print(n)
-"""
+		#反向遍历bitmap
+		for bitmapIndex in reversed(range(0,len(bitmap))):
 
+			bitnum = bitmap[bitmapIndex]
+
+			if bitnum == 0:
+				continue
+
+			for byteindex in reversed(range(0,32)):
+				if (bitnum & byteindex) == byteindex:
+					print(bitnum)
+
+					originNum = self._getNumByPositionAndIndex(bitmapIndex,byteindex)
+
+					
+
+					#result.append(originNum)
+					if result is not None and len(result) >= topNum:
+						return result
+					
+
+		return result
 
 
 
 
 if "__name__ == __main__":
-	f = findTopElements(1)
+	f = findTopElements(10)
+	'''
 	shuffledElements = f.getShuffledArray()
-	f.getTopElements(1)
+
+	print("origin element list :%s"%shuffledElements)
+
+	result =f.getTopElements(3)
+	print("element after bitmap sort%s"%result)
+	'''
+	
+#	print(f.set_bit(0,2))
+	print(f.set_bit(1,1))
