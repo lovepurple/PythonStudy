@@ -17,12 +17,19 @@
 	index = 62 / 32 = 1   
 	bit_index = 62 % 32 = 30
 
+	!!!!!
+		设置指定的位
+		获取指定的位
+		指定的位是否存在数
+
 	x[1] = x[1] | 30 使用位或
 	 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0
 
 	 (1) 把所有的数遍历，根据指定的index position 放入bitmap里
 	 (2) bitmap的顺序就是实际数据的排序(类似桶排序),index的顺序是一组里的具体顺序
 	 (3) 取出最后的个数，去原数组里查找对应的元素就是最后的排序结果
+
+	 2016-6-20 17:31:502 终于对了，你妈了个逼的
 
 '''
 
@@ -72,18 +79,21 @@ class findTopElements(object):
 
 	#按位设置的算法
 	def set_bit(self,num,index,flag=True):
-		if index > 32 or index < 0:
+		if index > 31 or index < 0:
 			raise ValueError("index error:index:%d"%index)
 
 		#确定Offset
-		bitIndex = index if index < 2  else 2<< (index -2)
+		bitIndex = 1 if index ==0  else 2<< (index -1)
 
 		#设置的核心方法
 		return (num | bitIndex) if flag else (num & ~bitIndex)
 
 	#获取指定的位上的值
 	def get_bit(self,num,index):
-		pass
+		if index > 32 or index < 0:
+			raise ValueError("index error:index %d"%index)
+
+		return 1 if (num & 1<<index) else 0
 
 		
 
@@ -92,8 +102,6 @@ class findTopElements(object):
 			bitmap = self._buildBitmap(self._elementsArray)
 
 		result = []
-
-		print(bitmap)
 
 		#反向遍历bitmap
 		for bitmapIndex in reversed(range(0,len(bitmap))):
@@ -104,13 +112,11 @@ class findTopElements(object):
 				continue
 
 			for byteindex in reversed(range(0,32)):
-				if (bitnum & byteindex) == byteindex:
-					print(bitnum)
-
+				if self.get_bit(bitnum,byteindex) == 1 :
 					originNum = self._getNumByPositionAndIndex(bitmapIndex,byteindex)
-
 					
-
+					result.append(originNum)
+					
 					#result.append(originNum)
 					if result is not None and len(result) >= topNum:
 						return result
@@ -122,15 +128,12 @@ class findTopElements(object):
 
 
 if "__name__ == __main__":
-	f = findTopElements(10)
-	'''
+	f = findTopElements(100000)
+
 	shuffledElements = f.getShuffledArray()
 
 	print("origin element list :%s"%shuffledElements)
 
-	result =f.getTopElements(3)
+	result =f.getTopElements(10)
 	print("element after bitmap sort%s"%result)
-	'''
-	
-#	print(f.set_bit(0,2))
-	print(f.set_bit(1,1))
+
