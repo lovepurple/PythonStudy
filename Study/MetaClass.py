@@ -7,9 +7,30 @@
 	4. __class__属性
 	5. __metaclass__属性，
 	6. type就是一个类（int str）
-	7. __new__ 在 __init__之前被调用
+	7. __new__ 在 __init__之前被调用，使用__new__能控制对象的创建
 	8. __init__ 用来将传入的参数初始化给对象(相当于构造函数)
-	
+	9. 三个重要的内置函数：
+		(1) __new__
+		(2) __init__
+		(3) __call__
+
+	MetaClass的主要功能：
+		(1) 拦截类的创建
+		(2) 修改类
+		(3) 返回修改之后的类
+
+	主要用途：
+		(1) 创建Api
+			如ORM例子
+				class Person(models.Model):
+					name = models.CharField(max_length = 30)
+					age = models.IntegerField()
+
+				guy = Person(name="bob",age = 35)
+
+				Integer是一个int
+
+	修改类的另一种方式是使用@ 也就是class decorators
 """
 
 #动态创建类
@@ -95,6 +116,7 @@ print("\n --------------------__metaclass__ ------------------------")
 """
 
 def upper_attr(future_class_name,future_class_parent,future_class_attr):
+	print("dds")
 	attrs = ((name,value) for name,value in future_class_attr.items() if not name.startswith('__'))
 
 	#Python 里的函数式模式
@@ -112,6 +134,56 @@ class Foo2(object):
 	__metaclass__ = upper_attr
 	bar = 'bip'
 
-print(hasattr(Foo,'echo_bar'))
+print("\n ----------定义真正的MetaClass-----------------------------")
+
+"""
+	1. 继承自type
+	2. 例子的作用是把一个类所有除__开头的属性外的所有小写属性的名改为大写
+	3. 下方参数的
+		__new__(upperattr_metaclass,future_class_name,future_class_parents,future_class_attr)
+		其实就是type的参数
+		__new__(cls,name,bases,dict)
+"""
+class UpperAttrMetaClass(type):
+	#使用__new__ 相当于在new instance 的时候拦截了一层
+
+	#upperattr_metaclass 参数表示类的当前实例，相当于self
+	
+	""" 方法一： 这里并没有改写__new__
+	def __new__(upperattr_metaclass,future_class_name,future_class_parents,future_class_attr):
+		attrs = ((name,value) for name,value in future_class_attr.items() if not name.startswith("__"))
+		uppercase_attrs = dict((name.upper(),value) for name,value in attrs)
+		return type(future_class_name,future_class_parents,uppercase_attrs)
+	"""
+
+	"""方法二：OOP思路 直接改写__new__
+			
+	"""
+	#def __new__(upperattr_metaclass,future_class_name,future_class_parents,future_class_attr):
+	def __new__(cls,name,bases,dit)
+		attrs = ((name,value) for name,value in dit.items() if not name.startswith("__"))
+		uppercase_attr = dict((name.upper(),value) for name,value in attrs)
+
+		#type__new__
+		# 因为父类是type所以下面改写成
+		#return type__new__(cls,name,bases,upper_attr)
+		#第一个参数
+		return super(UpperAttrMetaClass,cls).__new__(cls,name,bases,uppercase_attr)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	
 
 
